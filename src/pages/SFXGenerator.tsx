@@ -1,13 +1,13 @@
+import { Download, Play, Save, StopCircle } from "lucide-react";
 import { useState } from "react";
-import { FaPlay, FaStop, FaSave, FaDownload } from "react-icons/fa";
 
 const SFXGenerator = () => {
   const [waveType, setWaveType] = useState("sine");
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-blue-950 via-black to-gray-950 text-white flex flex-col items-center justify-center px-6 py-16">
+    <main className="min-h-screen bg-linear-to-b from-blue-950 via-black to-gray-950 text-white flex flex-col items-center justify-center px-6 py-16">
       <header className="mb-8 text-center">
-        <h1 className="text-4xl font-black bg-gradient-to-r from-blue-400 to-pink-500 text-transparent tracking-widest bg-clip-text">
+        <h1 className="text-4xl font-black bg-linear-to-r from-blue-400 to-pink-500 text-transparent tracking-widest bg-clip-text">
           SFX Generator
         </h1>
         <p className="text-white/70 text-md font-black mt-2">
@@ -119,10 +119,10 @@ const SFXGenerator = () => {
 
           <div className="flex gap-4">
             <button className="bg-green-600 hover:bg-green-500 p-4 rounded-full shadow">
-              <FaPlay size={20} />
+              <Play size={20} />
             </button>
             <button className="bg-red-600 hover:bg-red-500 p-4 rounded-full shadow">
-              <FaStop size={20} />
+              <StopCircle size={20} />
             </button>
           </div>
 
@@ -141,10 +141,10 @@ const SFXGenerator = () => {
 
           <div className="flex justify-between items-center">
             <button className="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-bold flex items-center gap-2">
-              <FaSave /> Save
+              <Save /> Save
             </button>
             <button className="bg-yellow-600 hover:bg-yellow-500 px-4 py-2 rounded-lg font-bold flex items-center gap-2">
-              <FaDownload /> Export
+              <Download /> Export
             </button>
           </div>
         </div>
