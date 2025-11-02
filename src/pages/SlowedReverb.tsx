@@ -4,15 +4,9 @@ import Footer from "../components/Footer";
 import { audioBufferToWav } from "../converters/audioBufferToWav";
 import ThemeToggle from "../components/ThemeToggle";
 import Header from "../components/Header";
-import {
-  AudioWaveform,
-  Download,
-  Earth,
-  Play,
-  Square,
-  SquareStop,
-} from "lucide-react";
+import { Download, Earth, Play, Square, SquareStop } from "lucide-react";
 import UploadButton from "../components/UploadButton";
+import AudioWaveform from "../components/AudioWaveForm";
 const SlowedReverb = () => {
   const [speed, setSpeed] = useState(1);
   const [reverb, setReverb] = useState(0.4);
@@ -132,8 +126,7 @@ const SlowedReverb = () => {
   };
   return (
     <main
-      className="min-h-screen bg-gradient-to-b 
-  from-gray-100 via-gray-200 to-gray-300
+      className="min-h-screen bg-linear-to-b from-gray-100 via-gray-200 to-gray-300
   dark:from-gray-900 dark:via-gray-950 dark:to-black
   text-gray-900 dark:text-gray-100 
   flex flex-col items-center justify-center 
