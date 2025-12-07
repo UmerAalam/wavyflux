@@ -7,6 +7,8 @@ import Header from "../components/Header";
 import { Download, Earth, Play, Square, SquareStop } from "lucide-react";
 import UploadButton from "../components/UploadButton";
 import AudioWaveform from "../components/AudioWaveForm";
+import WavyFluxLogo from "../images/WavyFluxLogo.svg";
+
 const SlowedReverb = () => {
   const [speed, setSpeed] = useState(1);
   const [reverb, setReverb] = useState(0.4);
@@ -18,16 +20,25 @@ const SlowedReverb = () => {
   const recorderRef = useRef<Tone.Recorder | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [position, setPosition] = useState(0);
-  const [duration, setDuration] = useState(0);
+  const [duration, setDuration] = useState<number | null>(null);
+  const [adjustedDuration, setAdjustedDuration] = useState<number | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [fileName, setFileName] = useState<string | null>("");
+
   useEffect(() => {
     if (!play || !playerRef.current) return;
     const interval = setInterval(() => {
-      setPosition((pos) => (pos + 0.2 > duration ? duration : pos + 0.2));
+      duration &&
+        setPosition((pos) => (pos + 0.2 > duration ? duration : pos + 0.2));
     }, 200);
     return () => clearInterval(interval);
   }, [play]);
+  useEffect(() => {
+    if (duration) {
+      const adjusted = duration / speed;
+      setAdjustedDuration(adjusted);
+    }
+  }, [duration, speed]);
   useEffect(() => {
     const setupAudio = async () => {
       playerRef.current?.dispose();
@@ -97,7 +108,7 @@ const SlowedReverb = () => {
     if (!player || !player.buffer) return;
     setIsExporting(true);
     try {
-      const renderTime = duration / Math.max(0.0001, speed);
+      const renderTime = duration! / Math.max(0.0001, speed);
       const rendered = (await (Tone.Offline(async (ctx) => {
         const p = new Tone.Player(player.buffer);
         const r = new Tone.Reverb({ decay: 5, wet: reverb });
@@ -125,18 +136,11 @@ const SlowedReverb = () => {
     }
   };
   return (
-    <main
-      className="min-h-screen bg-linear-to-b from-gray-100 via-gray-200 to-gray-300
-  dark:from-gray-900 dark:via-gray-950 dark:to-black
-  text-gray-900 dark:text-gray-100 
-  flex flex-col items-center justify-center 
-  px-4 sm:px-6
-  transition-colors duration-300"
-    >
+    <main className="min-h-screen bg-linear-to-b from-gray-100 via-gray-200 to-gray-300 dark:from-gray-900 dark:via-gray-950 dark:to-black text-gray-900 dark:text-gray-100 flex flex-col items-center justify-center px-4 sm:px-6 transition-colors duration-300">
       {/* Logo + Theme Toggle */}
       <div className="w-full flex justify-between items-start">
         <img
-          src="WavyFluxLogo.svg"
+          src={WavyFluxLogo}
           className="size-16 sm:size-20 md:size-24"
           alt="WavyFlux Logo"
         />
@@ -149,7 +153,7 @@ const SlowedReverb = () => {
       <Header />
       {/* Main Card */}
       <section
-        className="backdrop-blur-xl dark:bg-white/5 bg-black/30
+        className="backdrop-blur-xl dark:bg-white/5 bg-black/5
     dark:border-white/70
     rounded-2xl shadow-2xl
     w-full max-w-lg 
@@ -203,7 +207,7 @@ const SlowedReverb = () => {
             Timeline:{" "}
             <span className="text-yellow-400 font-black">
               {isNaN(position) ? 0 : Math.floor(position)}s /{" "}
-              {isNaN(duration) ? 0 : Math.floor(duration)}s
+              {isNaN(adjustedDuration!) ? 0 : Math.floor(adjustedDuration!)}s
             </span>
           </label>
           <input

@@ -12,7 +12,7 @@ const Footer = () => {
         Tailwind CSS
       </p>
       <a href="https://github.com/UmerAalam" target="_blank">
-        <span className="flex justify-center w-fit px-3 py-1 mx-auto mt-2 gap-1 items-center dark:bg-white/10 rounded-full">
+        <span className="flex justify-center w-fit px-3 py-1 mx-auto mt-2 gap-1 items-center text-white dark:bg-white/10 bg-black/80 rounded-full">
           <span className="text-purple-400">{"Made by"}</span>Umer Aalam
         </span>
       </a>
