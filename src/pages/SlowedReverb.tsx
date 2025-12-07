@@ -72,7 +72,9 @@ const SlowedReverb = () => {
       playerRef.current.playbackRate = speed;
     }
   }, [speed]);
-
+  const onClick = (time: number) => {
+    setPosition(time);
+  };
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -170,7 +172,11 @@ const SlowedReverb = () => {
       transition-colors duration-300"
         >
           {audioSrc ? (
-            <AudioWaveform position={position} audioSrc={audioSrc} />
+            <AudioWaveform
+              onClick={onClick}
+              position={position}
+              audioSrc={audioSrc}
+            />
           ) : (
             "Upload an audio file to see waveform"
           )}
