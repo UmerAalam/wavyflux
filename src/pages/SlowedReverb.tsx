@@ -269,16 +269,14 @@ const SlowedReverb = () => {
   return (
     <main className="min-h-screen bg-linear-to-b from-gray-100 via-gray-200 to-gray-300 dark:from-gray-900 dark:via-gray-950 dark:to-black text-gray-900 dark:text-gray-100 flex flex-col items-center justify-center px-4 sm:px-6 transition-colors duration-300">
       {/* Logo + Theme Toggle */}
-      <div className="w-full flex justify-between items-start">
+      <div className="w-full flex justify-between items-center">
         <img
           src={WavyFluxLogo}
           className="size-16 sm:size-20 md:size-24"
           alt="WavyFlux Logo"
         />
         <div className="my-auto">
-          <div className="mt-1.5">
-            <ThemeToggle />
-          </div>
+          <ThemeToggle />
         </div>
       </div>
       <Header />
@@ -340,7 +338,7 @@ const SlowedReverb = () => {
         <div className="w-full">
           <label className="block mb-2 text-xs sm:text-sm font-black text-gray-600 dark:text-gray-300">
             Timeline:{" "}
-            <span className="text-yellow-400 font-black">
+            <span className="text-black/80 dark:text-yellow-400 font-black">
               {isNaN(position) ? 0 : Math.floor(position / speedSafe)}s /{" "}
               {isNaN(adjustedDuration!) ? 0 : Math.floor(adjustedDuration!)}s
             </span>
