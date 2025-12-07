@@ -74,6 +74,11 @@ const SlowedReverb = () => {
   }, [speed]);
   const onClick = (time: number) => {
     setPosition(time);
+    const player = playerRef.current;
+    if (!player) return;
+    if (play) {
+      player.seek(time);
+    }
   };
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -96,7 +101,12 @@ const SlowedReverb = () => {
       player.stop();
       setPosition(0);
     } else {
-      player.start();
+      const startPosition =
+        duration === null
+          ? position
+          : Math.min(Math.max(0, position), duration);
+      setPosition(startPosition);
+      player.start(undefined, startPosition);
     }
     setPlay(!play);
   };
@@ -228,8 +238,7 @@ const SlowedReverb = () => {
               const player = playerRef.current;
               if (!player) return;
               if (play) {
-                player.stop();
-                player.start(undefined, newPos);
+                player.seek(newPos);
               }
             }}
             className="w-full accent-yellow-500"

@@ -15,6 +15,7 @@ const AudioWaveform = ({
 }: AudioWaveformInterface) => {
   const waveformRef = useRef<HTMLDivElement>(null);
   const wavesurfer = useRef<WaveSurfer | null>(null);
+  const ignoreInteractionRef = useRef(false);
 
   useEffect(() => {
     if (!waveformRef.current || !audioSrc) return;
@@ -53,20 +54,15 @@ const AudioWaveform = ({
     if (!wavesurfer.current) return;
 
     const ws = wavesurfer.current;
-    let lastTime = ws.getCurrentTime();
-
-    const handleSeek = () => {
-      const t = ws.getCurrentTime();
-      if (t > lastTime) {
-        onClick(t);
-      }
-      lastTime = t;
+    const handleInteraction = (time: number) => {
+      if (ignoreInteractionRef.current) return;
+      onClick(time);
     };
 
-    ws.on("seeking", handleSeek);
+    ws.on("interaction", handleInteraction);
 
-    return () => ws.un("seeking", handleSeek);
-  }, [wavesurfer]);
+    return () => ws.un("interaction", handleInteraction);
+  }, [onClick]);
 
   // 🔹 Update playback position when prop changes
   useEffect(() => {
@@ -76,7 +72,11 @@ const AudioWaveform = ({
 
     // Convert seconds → normalized progress (0–1)
     const progress = position / duration;
+    ignoreInteractionRef.current = true;
     wavesurfer.current.seekTo(progress);
+    setTimeout(() => {
+      ignoreInteractionRef.current = false;
+    }, 0);
   }, [position]);
 
   return <div ref={waveformRef} className="w-full" />;
