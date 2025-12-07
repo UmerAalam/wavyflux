@@ -48,7 +48,6 @@ const AudioWaveform = ({
 
     ws.on("ready", handleReady);
     ws.on("error", handleError);
-    ws.on("decodeerror", handleError);
     ws.on("loading", handleLoading);
 
     ws.load(audioSrc);
@@ -57,7 +56,6 @@ const AudioWaveform = ({
     return () => {
       ws.un("ready", handleReady);
       ws.un("error", handleError);
-      ws.un("decodeerror", handleError);
       ws.un("loading", handleLoading);
       ws.destroy();
     };
