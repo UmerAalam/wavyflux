@@ -440,21 +440,17 @@ const SlowedReverb = () => {
             />
           </button>
         </div>
-        <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="flex w-full flex-col gap-1 sm:max-w-xs">
-            <span className="text-lg font-black text-gray-600 dark:text-gray-300">
-              Export format
-            </span>
-          </div>
-          <select
-            value={exportFormat}
-            onChange={(e) => setExportFormat(e.target.value as ExportFormat)}
-            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-800 shadow-sm transition hover:border-blue-400 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-          >
-            <option value="wav">WAV (lossless)</option>
-            <option value="mp3">MP3 (compressed)</option>
-          </select>
-        </div>
+        <span className="text-lg font-black text-gray-600 dark:text-gray-300">
+          Export format
+        </span>
+        <select
+          value={exportFormat}
+          onChange={(e) => setExportFormat(e.target.value as ExportFormat)}
+          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-800 shadow-sm transition hover:border-blue-400 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+        >
+          <option value="wav">WAV (lossless)</option>
+          <option value="mp3">MP3 (compressed)</option>
+        </select>
       </section>
       <Footer />
     </main>
