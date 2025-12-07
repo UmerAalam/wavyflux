@@ -24,25 +24,36 @@ const SlowedReverb = () => {
   const [adjustedDuration, setAdjustedDuration] = useState<number | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [fileName, setFileName] = useState<string | null>("");
+  const positionRef = useRef(0);
   const playStartRef = useRef<number | null>(null);
   const prevSpeedRef = useRef<number>(1);
+  const speedSafe = Math.max(speed, 0.0001);
 
   const clampToDuration = (value: number) =>
     duration === null ? value : Math.min(Math.max(0, value), duration);
 
+  const setPositionSafe = (value: number) => {
+    const clamped = clampToDuration(value);
+    positionRef.current = clamped;
+    setPosition(clamped);
+  };
+
   const getPlaybackPosition = () => {
-    if (!playStartRef.current) return position;
+    if (!playStartRef.current) return positionRef.current;
     const elapsed = Tone.now() - playStartRef.current;
-    const raw = elapsed * speed;
+    const raw = elapsed * speedSafe;
     return clampToDuration(raw);
   };
 
   useEffect(() => {
     if (!play || !playerRef.current) return;
-    const interval = setInterval(() => {
-      setPosition(getPlaybackPosition());
-    }, 200);
-    return () => clearInterval(interval);
+    let frame: number;
+    const tick = () => {
+      setPositionSafe(getPlaybackPosition());
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
   }, [play, speed, duration]);
   useEffect(() => {
     if (duration) {
@@ -87,19 +98,20 @@ const SlowedReverb = () => {
         ? Tone.now() - playStartRef.current
         : 0;
       const currentPos = clampToDuration(elapsed * prevSpeedRef.current);
-      setPosition(currentPos);
-      playStartRef.current = Tone.now() - currentPos / speed;
+      playerRef.current?.seek(currentPos);
+      setPositionSafe(currentPos);
+      playStartRef.current = Tone.now() - currentPos / speedSafe;
     }
     prevSpeedRef.current = speed;
   }, [speed, play]);
   const onClick = (time: number) => {
     const newPosition = clampToDuration(time);
-    setPosition(newPosition);
+    setPositionSafe(newPosition);
     const player = playerRef.current;
     if (!player) return;
     if (play) {
       player.seek(newPosition);
-      playStartRef.current = Tone.now() - newPosition / speed;
+      playStartRef.current = Tone.now() - newPosition / speedSafe;
     }
   };
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -121,15 +133,15 @@ const SlowedReverb = () => {
     if (!player) return;
     if (play) {
       player.stop();
-      setPosition(0);
+      setPositionSafe(0);
       playStartRef.current = null;
     } else {
       const startPosition =
         duration === null
           ? position
           : Math.min(Math.max(0, position), duration);
-      setPosition(startPosition);
-      playStartRef.current = Tone.now() - startPosition / speed;
+      setPositionSafe(startPosition);
+      playStartRef.current = Tone.now() - startPosition / speedSafe;
       player.start(undefined, startPosition);
     }
     setPlay(!play);
@@ -246,24 +258,25 @@ const SlowedReverb = () => {
           <label className="block mb-2 text-xs sm:text-sm font-black text-gray-600 dark:text-gray-300">
             Timeline:{" "}
             <span className="text-yellow-400 font-black">
-              {isNaN(position) ? 0 : Math.floor(position)}s /{" "}
+              {isNaN(position) ? 0 : Math.floor(position / speedSafe)}s /{" "}
               {isNaN(adjustedDuration!) ? 0 : Math.floor(adjustedDuration!)}s
             </span>
           </label>
           <input
             type="range"
             min="0"
-            max={duration || 0}
+            max={adjustedDuration || 0}
             step="0.1"
-            value={position}
+            value={position / speedSafe}
             onChange={(e) => {
-              const newPos = clampToDuration(parseFloat(e.target.value));
-              setPosition(newPos);
+              const displayPos = parseFloat(e.target.value);
+              const newPos = clampToDuration(displayPos * speedSafe);
+              setPositionSafe(newPos);
               const player = playerRef.current;
               if (!player) return;
               if (play) {
                 player.seek(newPos);
-                playStartRef.current = Tone.now() - newPos / speed;
+                playStartRef.current = Tone.now() - newPos / speedSafe;
               }
             }}
             className="w-full accent-yellow-500"
