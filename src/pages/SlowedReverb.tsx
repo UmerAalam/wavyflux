@@ -403,7 +403,7 @@ const SlowedReverb = () => {
         </div>
 
         {/* Upload + Export */}
-        <div className="flex justify-center flex-row w-full gap-3 sm:flex-row sm:items-center sm:gap-4">
+        <div className="flex justify-center flex-col md:flex-row w-full gap-3 sm:flex-row sm:items-center sm:gap-4">
           <UploadButton
             onClick={() => {
               if (fileLoaded) {
@@ -417,7 +417,7 @@ const SlowedReverb = () => {
           <button
             onClick={() => exportOffline(exportFormat)}
             disabled={!fileLoaded || isExporting}
-            className="uppercase w-full min-w-50 px-6 py-3
+            className="uppercase min-w-50 w-full px-6 py-3
             rounded-lg shadow-md transition font-black text-base sm:text-lg
             bg-blue-500 hover:bg-blue-600
             disabled:bg-gray-700/80 text-white
