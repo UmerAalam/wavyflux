@@ -1,4 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import type { FFmpeg } from "@ffmpeg/ffmpeg";
+import ffmpegCoreURL from "@ffmpeg/core?url";
+import ffmpegCoreWasm from "@ffmpeg/core/wasm?url";
 import * as Tone from "tone";
 import {
   AudioBufferSource,
@@ -18,6 +21,14 @@ import AudioWaveform from "../components/AudioWaveForm";
 import WavyFluxLogo from "../images/WavyFluxLogo.svg";
 
 type ExportFormat = "wav" | "mp3";
+type VideoPresetKey = "2160p" | "1440p" | "1080p" | "720p" | "480p" | "360p" | "240p" | "144p";
+
+type VideoPreset = {
+  label: string;
+  height: number;
+  bitrateKbps: number;
+};
+type FetchFileFn = (input: any) => Promise<Uint8Array>;
 
 type AudioBufferLike =
   | AudioBuffer
@@ -27,6 +38,27 @@ type AudioBufferLike =
       length: number;
       sampleRate: number;
     };
+
+const VIDEO_QUALITY_PRESETS: Record<VideoPresetKey, VideoPreset> = {
+  "2160p": { label: "2160p (4K)", height: 2160, bitrateKbps: 45000 },
+  "1440p": { label: "1440p (QHD)", height: 1440, bitrateKbps: 20000 },
+  "1080p": { label: "1080p (HD)", height: 1080, bitrateKbps: 9000 },
+  "720p": { label: "720p", height: 720, bitrateKbps: 5500 },
+  "480p": { label: "480p", height: 480, bitrateKbps: 2500 },
+  "360p": { label: "360p", height: 360, bitrateKbps: 1200 },
+  "240p": { label: "240p", height: 240, bitrateKbps: 700 },
+  "144p": { label: "144p", height: 144, bitrateKbps: 400 },
+};
+const VIDEO_PRESET_ORDER: VideoPresetKey[] = [
+  "1080p",
+  "720p",
+  "480p",
+  "360p",
+  "240p",
+  "144p",
+  "1440p",
+  "2160p",
+];
 
 let mp3EncoderReady = false;
 const ensureMp3Encoder = async () => {
@@ -89,6 +121,29 @@ const encodeWithMediabunny = async (
   });
 };
 
+const getExtensionFromMime = (mime?: string | null, fallback = "png") => {
+  if (!mime) return fallback;
+  const match = mime.match(/image\/([a-zA-Z0-9.+-]+)/);
+  return match?.[1] || fallback;
+};
+
+const guessImageExtension = (
+  file?: File | null,
+  url?: string | null,
+  fallback = "png",
+) => {
+  if (file?.type) return getExtensionFromMime(file.type, fallback);
+  if (file?.name) {
+    const ext = file.name.split(".").pop();
+    if (ext) return ext.toLowerCase();
+  }
+  if (url) {
+    const urlExt = url.split(".").pop();
+    if (urlExt && urlExt.length <= 5) return urlExt.toLowerCase().split(/\W/)[0];
+  }
+  return fallback;
+};
+
 const SlowedReverb = () => {
   const [speed, setSpeed] = useState(1);
   const [reverb, setReverb] = useState(0.4);
@@ -105,9 +160,18 @@ const SlowedReverb = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [fileName, setFileName] = useState<string | null>("");
   const [exportFormat, setExportFormat] = useState<ExportFormat>("wav");
+  const [videoPreset, setVideoPreset] = useState<VideoPresetKey>("1080p");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageUrl, setImageUrl] = useState("");
+  const [isVideoExporting, setIsVideoExporting] = useState(false);
+  const [videoProgress, setVideoProgress] = useState<number | null>(null);
+  const [videoError, setVideoError] = useState<string | null>(null);
   const positionRef = useRef(0);
   const playStartRef = useRef<number | null>(null);
   const prevSpeedRef = useRef<number>(1);
+  const ffmpegRef = useRef<FFmpeg | null>(null);
+  const fetchFileRef = useRef<FetchFileFn | null>(null);
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
   const speedSafe = Math.max(speed, 0.0001);
 
   const clampToDuration = (value: number) =>
@@ -208,6 +272,20 @@ const SlowedReverb = () => {
       });
     }
   };
+
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    setImageUrl("");
+  };
+
+  const handleImageUrlUpdate = (value: string) => {
+    setImageUrl(value);
+    if (value.trim()) {
+      setImageFile(null);
+    }
+  };
   const handlePlayPause = async () => {
     await Tone.start();
     const player = playerRef.current;
@@ -233,37 +311,175 @@ const SlowedReverb = () => {
     }
   };
 
+  const renderProcessedAudioBuffer = async (): Promise<AudioBuffer | null> => {
+    const player = playerRef.current;
+    if (!player || !player.buffer || !duration) return null;
+    const renderTime = duration / speedSafe;
+    const rendered = (await (Tone.Offline(async (ctx) => {
+      const p = new Tone.Player(player.buffer);
+      const r = new Tone.Reverb({ decay: 5, wet: reverb });
+      await r.generate();
+      p.playbackRate = speed;
+      p.connect(r);
+      r.connect(ctx.destination);
+      p.start(0, 0);
+    }, renderTime) as unknown)) as AudioBuffer;
+    return rendered;
+  };
+
+  const downloadBlob = (blob: Blob, downloadName: string) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = downloadName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const getBaseExportName = () =>
+    fileName?.replace(/\.[^/.]+$/, "") || "audio";
+
   const exportOffline = async (format: ExportFormat): Promise<void> => {
     const player = playerRef.current;
     if (!player || !player.buffer) return;
     setIsExporting(true);
     try {
-      const renderTime = duration! / Math.max(0.0001, speed);
-      const rendered = (await (Tone.Offline(async (ctx) => {
-        const p = new Tone.Player(player.buffer);
-        const r = new Tone.Reverb({ decay: 5, wet: reverb });
-        await r.generate();
-        p.playbackRate = speed;
-        p.connect(r);
-        r.connect(ctx.destination);
-        p.start(0, 0);
-      }, renderTime) as unknown)) as AudioBuffer;
-
+      const rendered = await renderProcessedAudioBuffer();
+      if (!rendered) {
+        throw new Error("Nothing to render. Please upload audio first.");
+      }
       const blob = await encodeWithMediabunny(rendered, format);
-
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      const baseName = fileName?.replace(/\.[^/.]+$/, "") || "audio";
-      a.download = `${baseName}-WavyFlux.${format}`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      downloadBlob(blob, `${getBaseExportName()}-WavyFlux.${format}`);
     } catch (err) {
       console.error("Offline export failed:", err);
     } finally {
       setIsExporting(false);
+    }
+  };
+
+  const loadFfmpeg = async (): Promise<{
+    ffmpeg: FFmpeg;
+    fetchFile: FetchFileFn;
+  }> => {
+    if (ffmpegRef.current && fetchFileRef.current) {
+      return { ffmpeg: ffmpegRef.current, fetchFile: fetchFileRef.current };
+    }
+    const [{ FFmpeg }, { fetchFile }] = await Promise.all([
+      import("@ffmpeg/ffmpeg"),
+      import("@ffmpeg/util"),
+    ]);
+    const instance = new FFmpeg();
+    instance.on("progress", ({ progress }) => {
+      setVideoProgress(Math.round(progress * 100));
+    });
+    await instance.load({
+      coreURL: ffmpegCoreURL,
+      wasmURL: ffmpegCoreWasm,
+    });
+    ffmpegRef.current = instance;
+    fetchFileRef.current = fetchFile as FetchFileFn;
+    return { ffmpeg: instance, fetchFile: fetchFile as FetchFileFn };
+  };
+
+  const getImageForFfmpeg = async (fetchFile: FetchFileFn) => {
+    if (imageFile) {
+      const ext = guessImageExtension(imageFile);
+      return {
+        name: `cover.${ext}`,
+        bytes: await fetchFile(imageFile),
+      };
+    }
+    if (!imageUrl.trim()) {
+      throw new Error("Please upload an image or paste an image URL.");
+    }
+    const response = await fetch(imageUrl.trim());
+    if (!response.ok) {
+      throw new Error("Could not download image from the provided URL.");
+    }
+    const blob = await response.blob();
+    const ext = guessImageExtension(null, imageUrl, getExtensionFromMime(blob.type));
+    return {
+      name: `cover.${ext}`,
+      bytes: await fetchFile(blob),
+    };
+  };
+
+  const exportVideoWithImage = async () => {
+    if (!fileLoaded) {
+      setVideoError("Upload and process audio first.");
+      return;
+    }
+    if (!imageFile && !imageUrl.trim()) {
+      setVideoError("Upload an image or paste an image URL.");
+      return;
+    }
+    setVideoError(null);
+    setIsVideoExporting(true);
+    setVideoProgress(0);
+    try {
+      const rendered = await renderProcessedAudioBuffer();
+      if (!rendered) {
+        throw new Error("Nothing to render. Please upload audio first.");
+      }
+      const audioBlob = await encodeWithMediabunny(rendered, "wav");
+      const { ffmpeg, fetchFile } = await loadFfmpeg();
+      await ffmpeg.writeFile("input.wav", await fetchFile(audioBlob));
+      const image = await getImageForFfmpeg(fetchFile);
+      await ffmpeg.writeFile(image.name, image.bytes);
+      const preset = VIDEO_QUALITY_PRESETS[videoPreset];
+
+      await ffmpeg.exec([
+        "-y",
+        "-loop",
+        "1",
+        "-i",
+        image.name,
+        "-i",
+        "input.wav",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-tune",
+        "stillimage",
+        "-pix_fmt",
+        "yuv420p",
+        "-vf",
+        `scale=-2:${preset.height}`,
+        "-b:v",
+        `${preset.bitrateKbps}k`,
+        "-c:a",
+        "aac",
+        "-b:a",
+        "160k",
+        "-shortest",
+        "-movflags",
+        "+faststart",
+        "output.mp4",
+      ]);
+
+      const data = await ffmpeg.readFile("output.mp4");
+      if (!(data instanceof Uint8Array)) {
+        throw new Error("Unexpected video data format from FFmpeg.");
+      }
+      const videoBlob = new Blob([new Uint8Array(data)], { type: "video/mp4" });
+      setVideoProgress(100);
+      downloadBlob(
+        videoBlob,
+        `${getBaseExportName()}-WavyFlux-${videoPreset}.mp4`,
+      );
+    } catch (err) {
+      console.error("Video export failed:", err);
+      setVideoError(
+        err instanceof Error
+          ? err.message
+          : "Video export failed. Please try again.",
+      );
+    } finally {
+      setIsVideoExporting(false);
+      setVideoProgress(null);
     }
   };
   return (
@@ -449,6 +665,90 @@ const SlowedReverb = () => {
           <option value="wav">WAV (lossless)</option>
           <option value="mp3">MP3 (compressed)</option>
         </select>
+        <div className="w-full h-px bg-gray-400/30 dark:bg-white/10" />
+        <div className="w-full space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-lg font-black text-gray-600 dark:text-gray-300">
+              Video export (image + slowed audio)
+            </span>
+            {videoProgress !== null && (
+              <span className="text-xs font-semibold text-gray-600 dark:text-gray-400">
+                {isVideoExporting ? "Rendering" : "Ready"} · {videoProgress}%
+              </span>
+            )}
+          </div>
+          {videoError && (
+            <p className="text-sm text-red-500 dark:text-red-400">
+              {videoError}
+            </p>
+          )}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              type="button"
+              onClick={() => imageInputRef.current?.click()}
+              className="uppercase min-w-50 w-full px-4 py-3 rounded-lg shadow-md transition font-black text-sm sm:text-base bg-pink-500 hover:bg-pink-600 disabled:bg-gray-700/80 text-white flex gap-2 items-center justify-center"
+            >
+              Upload image
+            </button>
+            <input
+              type="text"
+              value={imageUrl}
+              onChange={(e) => handleImageUrlUpdate(e.target.value)}
+              placeholder="Or paste image URL (https://...)"
+              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-800 shadow-sm transition hover:border-blue-400 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+            />
+            <input
+              type="file"
+              accept="image/*"
+              ref={imageInputRef}
+              onChange={handleImageFileChange}
+              className="hidden"
+            />
+          </div>
+          <div className="text-xs font-semibold text-gray-600 dark:text-gray-400">
+            {imageFile
+              ? `Using uploaded image: ${imageFile.name}`
+              : imageUrl
+                ? `Using image URL`
+                : "Add an image (file upload or URL) to render the video."}
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+            <select
+              value={videoPreset}
+              onChange={(e) => setVideoPreset(e.target.value as VideoPresetKey)}
+              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-800 shadow-sm transition hover:border-blue-400 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white sm:flex-1"
+            >
+              {VIDEO_PRESET_ORDER.map((key) => (
+                <option key={key} value={key}>
+                  {VIDEO_QUALITY_PRESETS[key].label} · ~
+                  {VIDEO_QUALITY_PRESETS[key].bitrateKbps} kbps
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={exportVideoWithImage}
+              disabled={
+                !fileLoaded || isVideoExporting || (!imageFile && !imageUrl.trim())
+              }
+              className="uppercase min-w-50 w-full px-6 py-3 rounded-lg shadow-md transition font-black text-base sm:text-lg bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700/80 text-white flex gap-2 items-center justify-center sm:w-auto"
+            >
+              {isVideoExporting ? (
+                <Earth
+                  className="animate-spin text-xl sm:text-2xl"
+                  size={22}
+                />
+              ) : (
+                <Download className="text-xl sm:text-2xl" size={22} />
+              )}
+              {isVideoExporting ? "Rendering video..." : "Export video"}
+            </button>
+          </div>
+          <p className="text-xs text-gray-600 dark:text-gray-400">
+            Uses YouTube-like presets. 1080p is default; higher presets may be
+            slow in-browser—move to a web worker or backend if you need faster
+            renders.
+          </p>
+        </div>
       </section>
       <Footer />
     </main>
