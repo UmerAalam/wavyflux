@@ -91,9 +91,8 @@ const AudioWaveform = ({
   }, [position]);
 
   return (
-    <div className="relative h-full w-full">
-      <div ref={waveformRef} className="h-full w-full" />
-      {isLoading && (
+    <div className="relative flex justify-center items-center h-full w-full">
+      {isLoading ? (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/10 backdrop-blur-[1px] dark:bg-white/5">
           <div className="flex items-center gap-2 text-xs font-semibold text-gray-700 dark:text-gray-200">
             <span
@@ -103,6 +102,8 @@ const AudioWaveform = ({
             <span>Loading waveform...</span>
           </div>
         </div>
+      ) : (
+        <div ref={waveformRef} className="h-full w-full" />
       )}
     </div>
   );

@@ -12,7 +12,7 @@ import { registerMp3Encoder } from "@mediabunny/mp3-encoder";
 import Footer from "../components/Footer";
 import ThemeToggle from "../components/ThemeToggle";
 import Header from "../components/Header";
-import { Download, Earth, Play, Square, SquareStop } from "lucide-react";
+import { Download, Earth, Octagon, OctagonPause, OctagonX } from "lucide-react";
 import UploadButton from "../components/UploadButton";
 import AudioWaveform from "../components/AudioWaveForm";
 import WavyFluxLogo from "../images/WavyFluxLogo.svg";
@@ -185,6 +185,7 @@ const SlowedReverb = () => {
     }
     prevSpeedRef.current = speed;
   }, [speed, play]);
+
   const onClick = (time: number) => {
     const newPosition = clampToDuration(time);
     setPositionSafe(newPosition);
@@ -291,9 +292,9 @@ const SlowedReverb = () => {
     transition-colors duration-300"
       >
         <div
-          className="font-black w-full h-20 sm:h-24 
+          className="font-black w-full h-full p-3 
       bg-gray-300/50 dark:bg-gray-800/60 
-      rounded-lg relative overflow-hidden
+      rounded-full relative overflow-hidden
       flex justify-center items-center
       text-gray-600 dark:text-gray-300
       transition-colors duration-300"
@@ -316,11 +317,7 @@ const SlowedReverb = () => {
             onClick={handlePlayPause}
             className="p-4 rounded-full disabled:bg-gray-700/80 shadow-md transition bg-blue-500 hover:bg-blue-600 text-white"
           >
-            {play ? (
-              <SquareStop size={22} />
-            ) : (
-              <Play size={22} className="ml-0.5" />
-            )}
+            {play ? <OctagonPause size={22} /> : <Octagon size={22} />}
           </button>
 
           <button
@@ -330,7 +327,7 @@ const SlowedReverb = () => {
           bg-pink-500 hover:bg-pink-600
           disabled:bg-gray-700/80 text-white"
           >
-            <Square size={22} />
+            <OctagonX size={22} />
           </button>
         </div>
 
@@ -418,7 +415,7 @@ const SlowedReverb = () => {
             onClick={() => exportOffline(exportFormat)}
             disabled={!fileLoaded || isExporting}
             className="uppercase min-w-50 w-full px-6 py-3
-            rounded-lg shadow-md transition font-black text-base sm:text-lg
+            rounded-full shadow-md transition font-black text-base sm:text-lg
             bg-blue-500 hover:bg-blue-600
             disabled:bg-gray-700/80 text-white
             flex gap-2 items-center justify-center sm:w-auto"
@@ -444,7 +441,7 @@ const SlowedReverb = () => {
         <select
           value={exportFormat}
           onChange={(e) => setExportFormat(e.target.value as ExportFormat)}
-          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-800 shadow-sm transition hover:border-blue-400 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+          className="w-full rounded-full bg-white px-3 py-2 text-md font-bold text-gray-800 dark:bg-gray-900 dark:text-white"
         >
           <option value="wav">WAV (lossless)</option>
           <option value="mp3">MP3 (compressed)</option>
