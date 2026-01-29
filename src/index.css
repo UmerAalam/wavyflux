@@ -4,7 +4,7 @@
 
 body {
   @apply m-0;
-  font-family: "Nunito", "Segoe UI", "Roboto", sans-serif;
+  font-family: "Nunito", "Roboto", "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition:

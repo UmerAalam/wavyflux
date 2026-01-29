@@ -140,10 +140,10 @@ const SFXGenerator = () => {
           </div>
 
           <div className="flex justify-between items-center">
-            <button className="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-bold flex items-center gap-2">
+            <button className="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-full font-bold flex items-center gap-2">
               <Save /> Save
             </button>
-            <button className="bg-yellow-600 hover:bg-yellow-500 px-4 py-2 rounded-lg font-bold flex items-center gap-2">
+            <button className="bg-yellow-600 hover:bg-yellow-500 px-4 py-2 rounded-full font-bold flex items-center gap-2">
               <Download /> Export
             </button>
           </div>

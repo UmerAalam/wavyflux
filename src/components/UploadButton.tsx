@@ -7,7 +7,7 @@ interface Props extends HTMLAttributes<HTMLButtonElement> {
 
 const UploadButton = ({ className = "", ...rest }: Props) => {
   const baseClasses =
-    "w-full min-w-50 uppercase size-fit px-6 py-3 rounded-lg flex justify-center items-center gap-2 hover:bg-pink-600 bg-pink-500 transition text-lg font-black shadow-md text-white";
+    "w-full min-w-50 uppercase size-fit px-6 py-3 rounded-full flex justify-center items-center gap-2 hover:bg-pink-600 bg-pink-500 transition text-lg font-black shadow-md text-white";
 
   return (
     <button {...rest} className={`${baseClasses} ${className}`.trim()}>
