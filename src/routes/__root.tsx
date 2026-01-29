@@ -20,16 +20,6 @@ export const Route = createRootRoute({
         title: "WavyFlux — Slowed + Reverb Audio Generator",
       },
     ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-      {
-        rel: "manifest",
-        href: manifest,
-      },
-    ],
   }),
 });
 
