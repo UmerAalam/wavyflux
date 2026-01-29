@@ -173,6 +173,9 @@ const SlowedReverb = () => {
   const fetchFileRef = useRef<FetchFileFn | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const speedSafe = Math.max(speed, 0.0001);
+  const encoderApiUrl = (
+    (import.meta as any).env?.VITE_ENCODER_API_URL as string | undefined
+  )?.trim();
 
   const clampToDuration = (value: number) =>
     duration === null ? value : Math.min(Math.max(0, value), duration);
@@ -406,7 +409,7 @@ const SlowedReverb = () => {
     };
   };
 
-  const exportVideoWithImage = async () => {
+  const exportVideoWithImageLocal = async () => {
     if (!fileLoaded) {
       setVideoError("Upload and process audio first.");
       return;
@@ -481,6 +484,80 @@ const SlowedReverb = () => {
       setIsVideoExporting(false);
       setVideoProgress(null);
     }
+  };
+
+  const exportVideoViaBackend = async () => {
+    if (!encoderApiUrl) {
+      throw new Error("Encoder API URL not configured.");
+    }
+    if (!fileLoaded) {
+      setVideoError("Upload and process audio first.");
+      return;
+    }
+    if (!imageFile && !imageUrl.trim()) {
+      setVideoError("Upload an image or paste an image URL.");
+      return;
+    }
+    setVideoError(null);
+    setIsVideoExporting(true);
+    setVideoProgress(null);
+    try {
+      const rendered = await renderProcessedAudioBuffer();
+      if (!rendered) {
+        throw new Error("Nothing to render. Please upload audio first.");
+      }
+      const audioBlob = await encodeWithMediabunny(rendered, "wav");
+      const formData = new FormData();
+      const audioName = `${getBaseExportName()}-WavyFlux.wav`;
+      formData.append(
+        "audio",
+        new File([audioBlob], audioName, { type: "audio/wav" }),
+      );
+      if (imageFile) {
+        formData.append("image", imageFile);
+      } else if (imageUrl.trim()) {
+        formData.append("imageUrl", imageUrl.trim());
+      }
+      formData.append("preset", videoPreset);
+
+      const target = `${encoderApiUrl.replace(/\/$/, "")}/render`;
+      const response = await fetch(target, {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) {
+        throw new Error(`Backend render failed (${response.status})`);
+      }
+      const videoBlob = await response.blob();
+      downloadBlob(
+        videoBlob,
+        `${getBaseExportName()}-WavyFlux-${videoPreset}.mp4`,
+      );
+      setVideoProgress(100);
+    } catch (err) {
+      console.error("Backend video export failed:", err);
+      setVideoError(
+        err instanceof Error
+          ? err.message
+          : "Video export failed. Please try again.",
+      );
+      throw err;
+    } finally {
+      setIsVideoExporting(false);
+      setVideoProgress(null);
+    }
+  };
+
+  const exportVideoWithImage = async () => {
+    if (encoderApiUrl) {
+      try {
+        await exportVideoViaBackend();
+        return;
+      } catch {
+        // fallback to local ffmpeg wasm
+      }
+    }
+    await exportVideoWithImageLocal();
   };
   return (
     <main className="min-h-screen bg-linear-to-b from-gray-100 via-gray-200 to-gray-300 dark:from-gray-900 dark:via-gray-950 dark:to-black text-gray-900 dark:text-gray-100 flex flex-col items-center justify-center px-4 sm:px-6 transition-colors duration-300">
@@ -740,13 +817,15 @@ const SlowedReverb = () => {
               ) : (
                 <Download className="text-xl sm:text-2xl" size={22} />
               )}
-              {isVideoExporting ? "Rendering video..." : "Export video"}
+              {isVideoExporting
+                ? "Rendering video..."
+                : `Export video${encoderApiUrl ? " (backend)" : ""}`}
             </button>
           </div>
           <p className="text-xs text-gray-600 dark:text-gray-400">
-            Uses YouTube-like presets. 1080p is default; higher presets may be
-            slow in-browser—move to a web worker or backend if you need faster
-            renders.
+            Uses YouTube-like presets. 1080p is default; if a backend URL is
+            configured, exports use the backend. Otherwise it falls back to
+            in-browser FFmpeg (slower).
           </p>
         </div>
       </section>
