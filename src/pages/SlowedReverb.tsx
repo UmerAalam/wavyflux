@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as Tone from "tone";
 import {
   AudioBufferSource,
@@ -95,7 +95,7 @@ const SlowedReverb = () => {
   const [reverb, setReverb] = useState(0.4);
   const [play, setPlay] = useState(false);
   const [fileLoaded, setFileLoaded] = useState(false);
-  const [selectedPreset, setSelectedPreset] = useState(0);
+  const [selectedPreset, setSelectedPreset] = useState(1);
   const [audioSrc, setAudioSrc] = useState<string | undefined>();
   const playerRef = useRef<Tone.Player | null>(null);
   const reverbRef = useRef<Tone.Reverb | null>(null);
@@ -270,6 +270,7 @@ const SlowedReverb = () => {
     }
   };
   const handlePreset = (speed: number, reverb: number) => {
+    setSelectedPreset(4);
     if (speed !== undefined) {
       setSpeed(speed);
     }
@@ -277,39 +278,38 @@ const SlowedReverb = () => {
       setReverb(reverb);
     }
   };
-  const presets = useMemo(() => {
-    return (
-      <div className="flex justify-center items-center gap-3">
-        <Button
-          onClick={() => {
-            handlePreset(0.75, 0.6);
-            setSelectedPreset(0);
-          }}
-          className={`${selectedPreset === 0 ? "text-pink-500 bg-pink-500" : ""} hover:text-pink-500 hover:bg-pink-500/10`}
-        >
-          SLOWED
-        </Button>
-        <Button
-          onClick={() => {
-            handlePreset(0.85, 0.4);
-            setSelectedPreset(1);
-          }}
-          className={`${selectedPreset === 1 ? "text-blue-500 bg-blue-500" : ""} hover:text-blue-500 hover:bg-blue-500/10`}
-        >
-          DEFAULT
-        </Button>
-        <Button
-          onClick={() => {
-            handlePreset(1.2, 0);
-            setSelectedPreset(2);
-          }}
-          className={`${selectedPreset === 2 ? "text-emerald-500 bg-emerald-500" : ""} hover:text-emerald-500 hover:bg-emerald-500/10`}
-        >
-          SPEED UP
-        </Button>
-      </div>
-    );
-  }, [selectedPreset]);
+  const presets = (
+    <div className="flex justify-center items-center gap-3">
+      <Button
+        onClick={() => {
+          handlePreset(0.75, 0.6);
+          setSelectedPreset(0);
+        }}
+        className={`${selectedPreset === 0 ? "text-pink-500 bg-pink-500/10 dark:text-pink-500 dark:bg-pink-500/10" : "dark:bg-white/5 bg-black/5 text-gray-600 dark:text-white"} hover:text-pink-500 hover:bg-pink-500/10`}
+      >
+        SLOWED
+      </Button>
+      <Button
+        onClick={() => {
+          handlePreset(0.85, 0.4);
+          setSelectedPreset(1);
+        }}
+        className={`${selectedPreset === 1 ? "text-blue-500 bg-blue-500/10 dark:text-blue-500 dark:bg-blue-500/10" : "dark:bg-white/5 bg-black/5 text-gray-600 dark:text-white"} hover:text-blue-500 hover:bg-blue-500/10`}
+      >
+        DEFAULT
+      </Button>
+      <Button
+        onClick={() => {
+          handlePreset(1.2, 0);
+          setSelectedPreset(2);
+        }}
+        className={`${selectedPreset === 2 ? "text-emerald-500 bg-emerald-500/10 dark:text-emerald-500 dark:bg-emerald-500/10" : "dark:bg-white/5 bg-black/5 text-gray-600 dark:text-white"} hover:text-emerald-500 hover:bg-emerald-500/10`}
+      >
+        SPEED UP
+      </Button>
+    </div>
+  );
+
   return (
     <main className="min-h-screen bg-linear-to-b from-gray-100 via-gray-200 to-gray-300 dark:from-gray-900 dark:via-gray-950 dark:to-black text-gray-900 dark:text-gray-100 flex flex-col items-center justify-center px-4 sm:px-6 transition-colors duration-300">
       {/* Logo + Theme Toggle */}
