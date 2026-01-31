@@ -1,4 +1,4 @@
-import { Heart } from "lucide-react";
+import { HeartHandshake } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -6,7 +6,7 @@ const Footer = () => {
       <p className="text-center">
         Built with{" "}
         {
-          <Heart className="inline-flex text-base sm:text-lg mx-1 text-blue-400" />
+          <HeartHandshake size={24} className="inline-flex dark:bg-white/10 text-white text-blue-400 rounded-full p-3 text-base sm:text-lg mx-1 text-blue-400" />
         }{" "}
         using <span className="text-blue-400 font-black">TanStack Start</span> &
         Tailwind CSS
@@ -15,6 +15,7 @@ const Footer = () => {
         <span className="flex justify-center w-fit px-3 py-1 mx-auto mt-2 gap-1 items-center text-white dark:bg-white/10 bg-black/80 rounded-full">
           <span className="text-purple-400">{"Made by"}</span>Umer Aalam
         </span>
+        <div className="mb-10"></div>
       </a>
     </footer>
   );

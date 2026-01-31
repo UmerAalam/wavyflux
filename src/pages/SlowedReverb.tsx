@@ -16,6 +16,7 @@ import { Download, Earth, Octagon, OctagonPause, OctagonX } from "lucide-react";
 import UploadButton from "../components/UploadButton";
 import AudioWaveform from "../components/AudioWaveForm";
 import WavyFluxLogo from "../images/WavyFluxLogo.svg";
+import Button from "../components/Button";
 
 type ExportFormat = "wav" | "mp3";
 
@@ -315,20 +316,31 @@ const SlowedReverb = () => {
           <button
             disabled={!fileLoaded}
             onClick={handlePlayPause}
-            className="p-4 rounded-full disabled:bg-gray-700/80 shadow-md transition bg-blue-500 hover:bg-blue-600 text-white"
+            className="p-3 rounded-full disabled:bg-gray-700/80 shadow-md transition bg-blue-500 hover:bg-blue-600 text-white"
           >
-            {play ? <OctagonPause size={22} /> : <Octagon size={22} />}
+            {play ? <OctagonPause size={24} /> : <Octagon size={24} />}
           </button>
 
           <button
             disabled={!fileLoaded}
             onClick={clearFile}
-            className="p-4 rounded-full shadow-md transition
+            className="p-3 rounded-full shadow-md transition
           bg-pink-500 hover:bg-pink-600
           disabled:bg-gray-700/80 text-white"
           >
-            <OctagonX size={22} />
+            <OctagonX size={24} />
           </button>
+        </div>
+        <div className="flex justify-center items-center gap-3">
+          <Button className="hover:text-pink-500 hover:bg-pink-500/10">
+            SLOWED
+          </Button>
+          <Button className="hover:text-blue-500 hover:bg-blue-500/10">
+            DEFAULT
+          </Button>
+          <Button className="hover:text-emerald-500  hover:bg-emerald-500/10">
+            SPEED UP
+          </Button>
         </div>
 
         {/* Seek Slider */}
