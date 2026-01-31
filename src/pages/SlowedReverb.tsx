@@ -268,6 +268,14 @@ const SlowedReverb = () => {
       setIsExporting(false);
     }
   };
+  const handlePreset = (speed: number, reverb: number) => {
+    if (speed !== undefined) {
+      setSpeed(speed);
+    }
+    if (reverb !== undefined) {
+      setReverb(reverb);
+    }
+  };
   return (
     <main className="min-h-screen bg-linear-to-b from-gray-100 via-gray-200 to-gray-300 dark:from-gray-900 dark:via-gray-950 dark:to-black text-gray-900 dark:text-gray-100 flex flex-col items-center justify-center px-4 sm:px-6 transition-colors duration-300">
       {/* Logo + Theme Toggle */}
@@ -331,14 +339,24 @@ const SlowedReverb = () => {
             <OctagonX size={24} />
           </button>
         </div>
+
         <div className="flex justify-center items-center gap-3">
-          <Button className="hover:text-pink-500 hover:bg-pink-500/10">
+          <Button
+            onClick={() => handlePreset(0.75, 0.6)}
+            className="hover:text-pink-500 hover:bg-pink-500/10"
+          >
             SLOWED
           </Button>
-          <Button className="hover:text-blue-500 hover:bg-blue-500/10">
+          <Button
+            onClick={() => handlePreset(0.85, 0.4)}
+            className="hover:text-blue-500 hover:bg-blue-500/10"
+          >
             DEFAULT
           </Button>
-          <Button className="hover:text-emerald-500  hover:bg-emerald-500/10">
+          <Button
+            onClick={() => handlePreset(1.2, 0.2)}
+            className="hover:text-emerald-500  hover:bg-emerald-500/10"
+          >
             SPEED UP
           </Button>
         </div>
