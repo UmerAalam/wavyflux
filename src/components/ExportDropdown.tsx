@@ -22,7 +22,7 @@ const ExportDropdown = ({ exportFormat, onChange }: Props) => {
           MP3 (compressed)
         </option>
       </select>
-      <ChevronDown className={`absolute top-auto right-10 transition-all ${open && ""}`} />
+      <ChevronDown className={`absolute top-auto right-10`} />
     </div>
   );
 };
