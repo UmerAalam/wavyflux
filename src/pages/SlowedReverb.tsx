@@ -16,6 +16,8 @@ import { Download, Earth, Octagon, OctagonPause, OctagonX } from "lucide-react";
 import UploadButton from "../components/UploadButton";
 import AudioWaveform from "../components/AudioWaveForm";
 import WavyFluxLogo from "../images/WavyFluxLogo.svg";
+import Button from "../components/Button";
+import ExportDropdown from "../components/ExportDropdown";
 
 type ExportFormat = "wav" | "mp3";
 
@@ -90,10 +92,11 @@ const encodeWithMediabunny = async (
 };
 
 const SlowedReverb = () => {
-  const [speed, setSpeed] = useState(1);
+  const [speed, setSpeed] = useState(0.85);
   const [reverb, setReverb] = useState(0.4);
   const [play, setPlay] = useState(false);
   const [fileLoaded, setFileLoaded] = useState(false);
+  const [selectedPreset, setSelectedPreset] = useState(1);
   const [audioSrc, setAudioSrc] = useState<string | undefined>();
   const playerRef = useRef<Tone.Player | null>(null);
   const reverbRef = useRef<Tone.Reverb | null>(null);
@@ -109,6 +112,10 @@ const SlowedReverb = () => {
   const playStartRef = useRef<number | null>(null);
   const prevSpeedRef = useRef<number>(1);
   const speedSafe = Math.max(speed, 0.0001);
+  const isPresetSlowed = speed === 0.75 && reverb === 0.6;
+  const isPresetSpeedUp = speed === 1.2 && reverb === 0;
+  const isDefault = speed === 0.85 && reverb === 0.4;
+  const showCustom = !isPresetSlowed && !isPresetSpeedUp && !isDefault;
 
   const clampToDuration = (value: number) =>
     duration === null ? value : Math.min(Math.max(0, value), duration);
@@ -185,6 +192,20 @@ const SlowedReverb = () => {
     }
     prevSpeedRef.current = speed;
   }, [speed, play]);
+  useEffect(() => {
+    if (isPresetSlowed) {
+      setSelectedPreset(0);
+    }
+    if (isDefault) {
+      setSelectedPreset(1);
+    }
+    if (isPresetSpeedUp) {
+      setSelectedPreset(2);
+    }
+    if (showCustom) {
+      setSelectedPreset(4);
+    }
+  }, [showCustom, isDefault, isPresetSlowed, isPresetSpeedUp]);
 
   const onClick = (time: number) => {
     const newPosition = clampToDuration(time);
@@ -267,6 +288,50 @@ const SlowedReverb = () => {
       setIsExporting(false);
     }
   };
+  const handlePreset = (speed: number, reverb: number) => {
+    if (speed !== undefined) {
+      setSpeed(speed);
+    }
+    if (reverb !== undefined) {
+      setReverb(reverb);
+    }
+  };
+  const presets = (
+    <div className="flex justify-center items-center gap-3">
+      <Button
+        onClick={() => {
+          handlePreset(0.75, 0.6);
+          setSelectedPreset(0);
+        }}
+        className={`${selectedPreset === 0 ? "text-pink-500 bg-pink-500/10 dark:text-pink-500 dark:bg-pink-500/10" : "dark:bg-white/5 bg-black/5 text-gray-600 dark:text-white"} hover:text-pink-500 hover:bg-pink-500/10`}
+      >
+        SLOWED
+      </Button>
+      {showCustom ? (
+        <Button className={`text-yellow-500 bg-yellow-500/10`}>CUSTOM</Button>
+      ) : (
+        <Button
+          onClick={() => {
+            handlePreset(0.85, 0.4);
+            setSelectedPreset(1);
+          }}
+          className={`${selectedPreset === 1 ? "text-blue-500 bg-blue-500/10 dark:text-blue-500 dark:bg-blue-500/10" : "dark:bg-white/5 bg-black/5 text-gray-600 dark:text-white"} hover:text-blue-500 hover:bg-blue-500/10`}
+        >
+          DEFAULT
+        </Button>
+      )}
+      <Button
+        onClick={() => {
+          handlePreset(1.2, 0);
+          setSelectedPreset(2);
+        }}
+        className={`${selectedPreset === 2 ? "text-emerald-500 bg-emerald-500/10 dark:text-emerald-500 dark:bg-emerald-500/10" : "dark:bg-white/5 bg-black/5 text-gray-600 dark:text-white"} hover:text-emerald-500 hover:bg-emerald-500/10`}
+      >
+        SPEED UP
+      </Button>
+    </div>
+  );
+
   return (
     <main className="min-h-screen bg-linear-to-b from-gray-100 via-gray-200 to-gray-300 dark:from-gray-900 dark:via-gray-950 dark:to-black text-gray-900 dark:text-gray-100 flex flex-col items-center justify-center px-4 sm:px-6 transition-colors duration-300">
       {/* Logo + Theme Toggle */}
@@ -285,8 +350,8 @@ const SlowedReverb = () => {
       <section
         className="backdrop-blur-xl dark:bg-white/5 bg-black/5
     dark:border-white/70
-    rounded-2xl shadow-2xl
-    w-full max-w-lg 
+    rounded-2xl
+    w-full max-w-lg
     p-4 sm:p-8
     flex flex-col items-center space-y-4
     transition-colors duration-300"
@@ -315,21 +380,23 @@ const SlowedReverb = () => {
           <button
             disabled={!fileLoaded}
             onClick={handlePlayPause}
-            className="p-4 rounded-full disabled:bg-gray-700/80 shadow-md transition bg-blue-500 hover:bg-blue-600 text-white"
+            className="p-2 rounded-full disabled:bg-gray-700/80 transition bg-blue-500 hover:bg-blue-600 text-white"
           >
-            {play ? <OctagonPause size={22} /> : <Octagon size={22} />}
+            {play ? <OctagonPause size={30} /> : <Octagon size={30} />}
           </button>
 
           <button
             disabled={!fileLoaded}
             onClick={clearFile}
-            className="p-4 rounded-full shadow-md transition
+            className="p-2 rounded-full transition
           bg-pink-500 hover:bg-pink-600
           disabled:bg-gray-700/80 text-white"
           >
-            <OctagonX size={22} />
+            <OctagonX size={30} />
           </button>
         </div>
+
+        {presets}
 
         {/* Seek Slider */}
         <div className="w-full">
@@ -415,7 +482,7 @@ const SlowedReverb = () => {
             onClick={() => exportOffline(exportFormat)}
             disabled={!fileLoaded || isExporting}
             className="uppercase min-w-50 w-full px-6 py-3
-            rounded-full shadow-md transition font-black text-base sm:text-lg
+            rounded-full transition font-black text-base sm:text-lg
             bg-blue-500 hover:bg-blue-600
             disabled:bg-gray-700/80 text-white
             flex gap-2 items-center justify-center sm:w-auto"
@@ -438,14 +505,10 @@ const SlowedReverb = () => {
         <span className="text-lg font-black text-gray-600 dark:text-gray-300">
           Export format
         </span>
-        <select
-          value={exportFormat}
+        <ExportDropdown
+          exportFormat={exportFormat}
           onChange={(e) => setExportFormat(e.target.value as ExportFormat)}
-          className="w-full rounded-full bg-white px-3 py-2 text-md font-bold text-gray-800 dark:bg-gray-900 dark:text-white"
-        >
-          <option value="wav">WAV (lossless)</option>
-          <option value="mp3">MP3 (compressed)</option>
-        </select>
+        />
       </section>
       <Footer />
     </main>

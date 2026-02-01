@@ -6,7 +6,7 @@ const ThemeToggle = () => {
   const ThemeButton = (
     <button
       onClick={toggleTheme}
-      className="p-3 rounded-full dark:bg-white/5 bg-gray-800 transition-all duration-300 shadow-lg backdrop-blur-sm"
+      className="p-3 rounded-full dark:bg-white/5 bg-gray-800 transition-all duration-300 backdrop-blur-sm"
       aria-label="Toggle theme"
     >
       {theme === "dark" ? (
