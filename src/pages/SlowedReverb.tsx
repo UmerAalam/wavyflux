@@ -91,7 +91,7 @@ const encodeWithMediabunny = async (
 };
 
 const SlowedReverb = () => {
-  const [speed, setSpeed] = useState(1);
+  const [speed, setSpeed] = useState(0.85);
   const [reverb, setReverb] = useState(0.4);
   const [play, setPlay] = useState(false);
   const [fileLoaded, setFileLoaded] = useState(false);
@@ -111,6 +111,10 @@ const SlowedReverb = () => {
   const playStartRef = useRef<number | null>(null);
   const prevSpeedRef = useRef<number>(1);
   const speedSafe = Math.max(speed, 0.0001);
+  const isPresetSlowed = speed === 0.75 && reverb === 0.6;
+  const isPresetSpeedUp = speed === 1.2 && reverb === 0;
+  const isDefault = speed === 0.85 && reverb === 0.4;
+  const showCustom = !isPresetSlowed && !isPresetSpeedUp && !isDefault;
 
   const clampToDuration = (value: number) =>
     duration === null ? value : Math.min(Math.max(0, value), duration);
@@ -187,6 +191,11 @@ const SlowedReverb = () => {
     }
     prevSpeedRef.current = speed;
   }, [speed, play]);
+  useEffect(() => {
+    if (showCustom) {
+      setSelectedPreset(4);
+    }
+  });
 
   const onClick = (time: number) => {
     const newPosition = clampToDuration(time);
@@ -270,7 +279,6 @@ const SlowedReverb = () => {
     }
   };
   const handlePreset = (speed: number, reverb: number) => {
-    setSelectedPreset(4);
     if (speed !== undefined) {
       setSpeed(speed);
     }
@@ -289,15 +297,19 @@ const SlowedReverb = () => {
       >
         SLOWED
       </Button>
-      <Button
-        onClick={() => {
-          handlePreset(0.85, 0.4);
-          setSelectedPreset(1);
-        }}
-        className={`${selectedPreset === 1 ? "text-blue-500 bg-blue-500/10 dark:text-blue-500 dark:bg-blue-500/10" : "dark:bg-white/5 bg-black/5 text-gray-600 dark:text-white"} hover:text-blue-500 hover:bg-blue-500/10`}
-      >
-        DEFAULT
-      </Button>
+      {showCustom ? (
+        <Button className={`text-yellow-500 bg-yellow-500/10`}>CUSTOM</Button>
+      ) : (
+        <Button
+          onClick={() => {
+            handlePreset(0.85, 0.4);
+            setSelectedPreset(1);
+          }}
+          className={`${selectedPreset === 1 ? "text-blue-500 bg-blue-500/10 dark:text-blue-500 dark:bg-blue-500/10" : "dark:bg-white/5 bg-black/5 text-gray-600 dark:text-white"} hover:text-blue-500 hover:bg-blue-500/10`}
+        >
+          DEFAULT
+        </Button>
+      )}
       <Button
         onClick={() => {
           handlePreset(1.2, 0);
