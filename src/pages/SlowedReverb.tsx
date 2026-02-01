@@ -17,6 +17,7 @@ import UploadButton from "../components/UploadButton";
 import AudioWaveform from "../components/AudioWaveForm";
 import WavyFluxLogo from "../images/WavyFluxLogo.svg";
 import Button from "../components/Button";
+import ExportDropdown from "../components/ExportDropdown";
 
 type ExportFormat = "wav" | "mp3";
 
@@ -504,16 +505,10 @@ const SlowedReverb = () => {
         <span className="text-lg font-black text-gray-600 dark:text-gray-300">
           Export format
         </span>
-        <div className="flex justify-center items-center">
-          <select
-            value={exportFormat}
-            onChange={(e) => setExportFormat(e.target.value as ExportFormat)}
-            className="w-full  appearance-none cursor-pointer rounded-full bg-white px-3 py-2 font-black text-gray-800 dark:bg-gray-900 dark:text-white"
-          >
-            <option value="wav">WAV (lossless)</option>
-            <option value="mp3">MP3 (compressed)</option>
-          </select>
-        </div>
+        <ExportDropdown
+          exportFormat={exportFormat}
+          onChange={(e) => setExportFormat(e.target.value as ExportFormat)}
+        />
       </section>
       <Footer />
     </main>
