@@ -8,7 +8,7 @@ const Button = ({ children, className = "", ...rest }: Props) => {
       {...rest}
       className={`
         flex transition-all cursor-pointer
-        px-3 py-1 font-black text-lg rounded-full
+        px-3 py-1 font-black rounded-full
         min-w-2 justify-center items-center
         ${className}
       `}

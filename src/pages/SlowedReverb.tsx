@@ -328,8 +328,8 @@ const SlowedReverb = () => {
       <section
         className="backdrop-blur-xl dark:bg-white/5 bg-black/5
     dark:border-white/70
-    rounded-2xl shadow-2xl
-    w-full max-w-lg 
+    rounded-2xl
+    w-full max-w-lg
     p-4 sm:p-8
     flex flex-col items-center space-y-4
     transition-colors duration-300"
@@ -358,7 +358,7 @@ const SlowedReverb = () => {
           <button
             disabled={!fileLoaded}
             onClick={handlePlayPause}
-            className="p-2 rounded-full disabled:bg-gray-700/80 shadow-md transition bg-blue-500 hover:bg-blue-600 text-white"
+            className="p-2 rounded-full disabled:bg-gray-700/80 transition bg-blue-500 hover:bg-blue-600 text-white"
           >
             {play ? <OctagonPause size={30} /> : <Octagon size={30} />}
           </button>
@@ -366,7 +366,7 @@ const SlowedReverb = () => {
           <button
             disabled={!fileLoaded}
             onClick={clearFile}
-            className="p-2 rounded-full shadow-md transition
+            className="p-2 rounded-full transition
           bg-pink-500 hover:bg-pink-600
           disabled:bg-gray-700/80 text-white"
           >
@@ -460,7 +460,7 @@ const SlowedReverb = () => {
             onClick={() => exportOffline(exportFormat)}
             disabled={!fileLoaded || isExporting}
             className="uppercase min-w-50 w-full px-6 py-3
-            rounded-full shadow-md transition font-black text-base sm:text-lg
+            rounded-full transition font-black text-base sm:text-lg
             bg-blue-500 hover:bg-blue-600
             disabled:bg-gray-700/80 text-white
             flex gap-2 items-center justify-center sm:w-auto"
@@ -483,14 +483,16 @@ const SlowedReverb = () => {
         <span className="text-lg font-black text-gray-600 dark:text-gray-300">
           Export format
         </span>
-        <select
-          value={exportFormat}
-          onChange={(e) => setExportFormat(e.target.value as ExportFormat)}
-          className="w-full rounded-full bg-white px-3 py-2 text-md font-bold text-gray-800 dark:bg-gray-900 dark:text-white"
-        >
-          <option value="wav">WAV (lossless)</option>
-          <option value="mp3">MP3 (compressed)</option>
-        </select>
+        <div className="flex justify-center items-center">
+          <select
+            value={exportFormat}
+            onChange={(e) => setExportFormat(e.target.value as ExportFormat)}
+            className="w-full  appearance-none cursor-pointer rounded-full bg-white px-3 py-2 font-black text-gray-800 dark:bg-gray-900 dark:text-white"
+          >
+            <option value="wav">WAV (lossless)</option>
+            <option value="mp3">MP3 (compressed)</option>
+          </select>
+        </div>
       </section>
       <Footer />
     </main>
