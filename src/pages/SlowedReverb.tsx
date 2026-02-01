@@ -192,10 +192,19 @@ const SlowedReverb = () => {
     prevSpeedRef.current = speed;
   }, [speed, play]);
   useEffect(() => {
+    if (isPresetSlowed) {
+      setSelectedPreset(0);
+    }
+    if (isDefault) {
+      setSelectedPreset(1);
+    }
+    if (isPresetSpeedUp) {
+      setSelectedPreset(2);
+    }
     if (showCustom) {
       setSelectedPreset(4);
     }
-  });
+  }, [showCustom, isDefault, isPresetSlowed, isPresetSpeedUp]);
 
   const onClick = (time: number) => {
     const newPosition = clampToDuration(time);
