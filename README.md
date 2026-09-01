@@ -94,11 +94,7 @@ Upload an audio file, tweak the playback speed and reverb, preview the result, a
 
 ## 🖼️ Preview
 
-<p align="center">
-  <a href="https://wavyflux.pages.dev/">
-    <img src="https://wavyflux.pages.dev/og-image.png" alt="WavyFlux" width="800">
-  </a>
-</p>
+<img width="1862" height="1003" alt="image" src="https://github.com/user-attachments/assets/f6df0409-3b7d-4afd-9f38-31db5614d596" />
 
 > Visit the live application to try WavyFlux directly in your browser.
 
