@@ -1,73 +1,332 @@
-# React + TypeScript + Vite
+# 🌊 WavyFlux
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> **Slow it down. Add depth. Let the vibes flow.**
 
-Currently, two official plugins are available:
+WavyFlux is a browser-based **Slowed + Reverb audio generator** built for creators who want to transform their music into dreamy, atmospheric sound.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Upload an audio file, tweak the playback speed and reverb, preview the result, and export your processed audio as a WAV file — entirely from the browser.
 
-## React Compiler
+<p align="center">
+  <a href="https://wavyflux.pages.dev/">🌐 Live Demo</a>
+  ·
+  <a href="#features">✨ Features</a>
+  ·
+  <a href="#getting-started">🚀 Getting Started</a>
+</p>
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## ✨ Features
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+* 🎵 **Audio Upload**
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+  * Upload your own audio files directly in the browser.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+* 🌊 **Waveform Visualization**
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+  * Visualize your audio while working with it.
+
+* 🐌 **Slowed Mode**
+
+  * Reduce playback speed for that classic slowed-down sound.
+
+* ⚡ **Speed Up Mode**
+
+  * Quickly increase playback speed.
+
+* 🎛️ **Playback Speed Control**
+
+  * Fine-tune the playback speed to get the sound exactly where you want it.
+
+* 🌫️ **Reverb Control**
+
+  * Adjust the intensity of the reverb effect.
+
+* 🎚️ **Presets**
+
+  * Quickly switch between available processing modes.
+
+* ▶️ **Real-time Preview**
+
+  * Listen to your changes before exporting.
+
+* 💾 **WAV Export**
+
+  * Export your processed audio as a WAV file.
+
+* 🖥️ **Runs in the Browser**
+
+  * No desktop application or complicated setup required.
+
+---
+
+## 🎧 How It Works
+
+```text
+          ┌──────────────┐
+          │  Upload Song  │
+          └───────┬──────┘
+                  │
+                  ▼
+          ┌──────────────┐
+          │ Audio Engine │
+          └───────┬──────┘
+                  │
+          ┌───────┴────────┐
+          │                │
+          ▼                ▼
+     Playback Speed     Reverb
+          │                │
+          └───────┬────────┘
+                  │
+                  ▼
+          ┌──────────────┐
+          │    Preview   │
+          └───────┬──────┘
+                  │
+                  ▼
+          ┌──────────────┐
+          │   Export WAV │
+          └──────────────┘
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🖼️ Preview
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+<p align="center">
+  <a href="https://wavyflux.pages.dev/">
+    <img src="https://wavyflux.pages.dev/og-image.png" alt="WavyFlux" width="800">
+  </a>
+</p>
+
+> Visit the live application to try WavyFlux directly in your browser.
+
+**[🌐 Open WavyFlux](https://wavyflux.pages.dev/)**
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+Make sure you have:
+
+* [Node.js](https://nodejs.org/) or [Bun](https://bun.sh/)
+* Git
+
+### Clone the repository
+
+```bash
+git clone https://github.com/YOUR_USERNAME/wavyflux.git
+
+cd wavyflux
 ```
+
+### Install dependencies
+
+Using Bun:
+
+```bash
+bun install
+```
+
+Or npm:
+
+```bash
+npm install
+```
+
+### Start the development server
+
+```bash
+bun dev
+```
+
+Or:
+
+```bash
+npm run dev
+```
+
+The application will be available at:
+
+```text
+http://localhost:3000
+```
+
+---
+
+## 🛠️ Tech Stack
+
+WavyFlux is built with a modern web stack:
+
+| Technology           | Purpose                    |
+| -------------------- | -------------------------- |
+| **React**            | User interface             |
+| **TanStack Start**   | Full-stack React framework |
+| **Tailwind CSS**     | Styling                    |
+| **TypeScript**       | Type-safe development      |
+| **Web Audio API**    | Audio processing           |
+| **Cloudflare Pages** | Deployment                 |
+
+The production site is built using **TanStack Start and Tailwind CSS**.
+
+---
+
+## 🎛️ Controls
+
+### Playback Speed
+
+Control how fast your audio plays.
+
+```text
+Slower  ◄────────────●────────────►  Faster
+                     0.85x
+```
+
+### Reverb
+
+Add atmosphere and depth to your audio.
+
+```text
+Dry     ◄────────────●────────────►     Wet
+                      40%
+```
+
+### Presets
+
+Quickly switch between different processing styles:
+
+```text
+SLOWED
+DEFAULT
+SPEED UP
+```
+
+---
+
+## 💡 Use Cases
+
+WavyFlux can be useful for:
+
+* 🎧 Creating slowed + reverb edits
+* 🎵 Experimenting with music
+* 🎬 Creating atmospheric audio for videos
+* 📱 Creating sounds for social media
+* 🎮 Game audio experimentation
+* 🎹 Audio production experiments
+* 🌙 Creating ambient listening experiences
+
+---
+
+## 🔒 Privacy
+
+WavyFlux is designed around browser-based audio processing.
+
+Your audio doesn't need to be uploaded to a traditional audio-processing backend just to experiment with playback effects.
+
+> Always check the application's current implementation before relying on this as a privacy guarantee.
+
+---
+
+## 📦 Project Structure
+
+A typical project structure looks like:
+
+```text
+wavyflux/
+├── public/
+├── src/
+│   ├── components/
+│   ├── routes/
+│   ├── styles/
+│   └── ...
+├── package.json
+├── tsconfig.json
+├── vite.config.ts
+└── README.md
+```
+
+---
+
+## 🧑‍💻 Development
+
+Contributions are welcome.
+
+If you want to improve WavyFlux:
+
+1. Fork the repository
+2. Create a feature branch
+
+```bash
+git checkout -b feature/my-feature
+```
+
+3. Make your changes
+4. Commit them
+
+```bash
+git commit -m "feat: add my feature"
+```
+
+5. Push the branch
+
+```bash
+git push origin feature/my-feature
+```
+
+6. Open a Pull Request
+
+---
+
+## 🗺️ Roadmap
+
+Potential improvements for future versions:
+
+* [ ] More audio effects
+* [ ] More presets
+* [ ] Additional export formats
+* [ ] Better waveform interaction
+* [ ] Drag & drop audio files
+* [ ] Volume control
+* [ ] Bass / treble controls
+* [ ] Fade in / fade out
+* [ ] Audio trimming
+* [ ] Shareable processed audio
+* [ ] Mobile UI improvements
+* [ ] PWA support
+
+---
+
+## 🤝 Contributing
+
+Contributions, ideas, bug reports, and feature requests are welcome.
+
+If you find a bug or have an idea that could make WavyFlux better, feel free to open an issue.
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License**.
+
+See [`LICENSE`](LICENSE) for more information.
+
+---
+
+## 👨‍💻 Author
+
+**Umer Aalam**
+
+Built with ❤️ and a love for music, code, and experimentation.
+
+---
+
+<p align="center">
+
+### 🌊 Turn ordinary audio into something dreamy.
+
+**[Try WavyFlux →](https://wavyflux.pages.dev/)**
+
+</p>
